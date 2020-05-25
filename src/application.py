@@ -11,7 +11,7 @@ from DB_initiat import *
 
 
 #APPS
-import page, auth, class_manage, error
+import page, auth, class_manage, problem_manage, error
 
 application = Flask(__name__, instance_relative_config=True, static_folder="dist")
 CORS(application)
@@ -26,11 +26,14 @@ jwt = JWTManager(application)
 def main_app(test_config = None):
 	#DB init
 	init_db()
+	init_data()
 	#BP.pages
 	application.register_blueprint(page.BP)
 	application.register_blueprint(auth.BP)
 	application.register_blueprint(class_manage.BP)
+	application.register_blueprint(problem_manage.BP)
 	application.register_blueprint(error.BP)
+
 
 
 @application.before_request

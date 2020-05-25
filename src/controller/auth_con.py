@@ -29,7 +29,6 @@ def sign_up(db, ID, PW, NAME, EMAIL):
 
 def sign_in(db, ID, PW):
 	USER = QOJ__user(db).find__one_simple(user_id = ID)
-
 	if not USER:
 		return "Not Found"
 
@@ -43,8 +42,8 @@ def sign_in(db, ID, PW):
 
 def get_userinfo(db, JWT):
 	USER = QOJ__user(db).find__one(user_id = JWT)
-
 	if not USER: abort(401)
 
 	return USER
-	
+
+

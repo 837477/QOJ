@@ -28,3 +28,22 @@ def API_V1_auth__get_class():
         RESULT = result,
         PROCESS_TIME = process_time
     )
+
+@BP.route('/API/V1/class_manage/get_admin_class')
+@jwt_required
+def API_V1_auth__get_admin_class():
+    process_time = time.time()
+    if check_user(g.db, get_jwt_identity()):
+        try:
+            result = get_admin_class(g.db, get_jwt_identity())
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )

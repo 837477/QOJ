@@ -34,7 +34,6 @@ def API_V1_auth__sign_in():
     ID = request.get_json()['id']
     PW = request.get_json()['pw']
     process_time = time.time()
-    result = sign_in(g.db, ID, PW)
     try:
         result = sign_in(g.db, ID, PW)
         status = "success"
@@ -77,22 +76,6 @@ def API_V1_auth__level_up_admin():
             result = status = "fail"
     else:
         result = "Access denied"
-    process_time = time.time() - process_time
-    return jsonify(
-        API_STATUS = status,
-        RESULT = result,
-        PROCESS_TIME = process_time
-    )
-
-@BP.route('/API/V1/auth/create_admin')
-@jwt_required
-def API_V1_auth__create_admin():
-    process_time = time.time()
-    try:
-        result = sign_up(g.db, "QOJ_ADMIN", "0000", "QOJ_MASTER", "QOJ@QOJ.com")
-        status = "success"
-    except:
-        result = status = "fail"
     process_time = time.time() - process_time
     return jsonify(
         API_STATUS = status,

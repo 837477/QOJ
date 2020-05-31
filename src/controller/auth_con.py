@@ -18,8 +18,8 @@ def sign_up(db, ID, PW, NAME, EMAIL):
 	
 	#DB에서 성공적으로 조회되면, 연습문제 연결하고 회원가입 성공!
 	if USER:
-		test_class = QOJ__class(db).find__one("QOJ 연습문제")		
-		QOJ__user_class(db).insert__one(ID, test_class['class_id'])
+		test_class = QOJ__class(db).find__one("QOJ 연습문제", "QOJ_ADMIN")		
+		QOJ__user_class(db).insert__one(ID, test_class['class_id'], 0)
 
 		return create_access_token(
 				identity = ID,
@@ -40,10 +40,38 @@ def sign_in(db, ID, PW):
 	else:
 		return "Incorrect pw"
 
+def user_update(db, ID, PW, CHECK_PW, EMAIL):
+	USER = QOJ__user(db).find__one_simple(user_id = ID)
+	if not USER:
+		return abort(401)
+
+	if PW != CHECK_PW:
+		return "Check PW"
+
+	result = QOJ__user(db).update__information(db, ID, generate_password_hash(PW), EMAIL)
+
+	return result
+
 def get_userinfo(db, JWT):
 	USER = QOJ__user(db).find__one(user_id = JWT)
 	if not USER: abort(401)
 
 	return USER
 
+def get_all_user(db):
+	result = QOJ__user(db).find__all()
 
+	return result
+
+def get_myproblem(db, JWT):
+	result = QOJ__v_problem(db).find__user(user_id = JWT)
+
+	return result
+
+def withdrawal(db, JWT):
+	USER = QOJ__user(db).find__one(user_id = JWT)
+	if not USER: abort(401)
+
+	result = QOJ__user(db).delete__one(user_id = JWT)
+
+	return result

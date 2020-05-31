@@ -40,3 +40,20 @@ def check_admin(db, JWT):
         return True
     else:
         return False
+
+#분반 관리자 확인
+def check_class_admin(db, class_id, JWT):
+    USER = QOJ__user(db).find__one(user_id = JWT)
+
+    if not USER:
+        return False
+
+    result = QOJ__user_class(db).find__uc_type(JWT, class_id)
+
+    if result:
+        if result['uc_type'] == 1:
+            return True
+        else:
+            return False
+    else:
+        return False

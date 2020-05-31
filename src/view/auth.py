@@ -5,11 +5,12 @@ from flask_jwt_extended import *
 from flask_cors import CORS
 import time
 ###########################################
-from qoj_global import check_admin
+from qoj_global import check_user, check_admin
 from auth_con import *
 
 BP = Blueprint('auth', __name__)
 
+#회원가입
 @BP.route('/API/V1/auth/sign_up', methods = ['POST'])
 def API_V1_auth__sign_up():
     ID = request.get_json()['id']
@@ -29,6 +30,7 @@ def API_V1_auth__sign_up():
         PROCESS_TIME = process_time
     )
 
+#로그인
 @BP.route('/API/V1/auth/sign_in', methods = ['POST'])
 def API_V1_auth__sign_in():
     ID = request.get_json()['id']
@@ -46,6 +48,30 @@ def API_V1_auth__sign_in():
         PROCESS_TIME = process_time
     )
 
+#회원정보 변경
+@BP.route('/API/V1/auth/update', methods = ['POST'])
+@jwt_required
+def API_V1_auth__update():
+    process_time = time.time()
+    if check_user(g.db, get_jwt_identity()):
+        PW = request.get_json()['pw']
+        CEHCK_PW = request.get_json()['check_pw']
+        EMAIL = request.get_json()['email']
+        try:
+            result = user_update(g.db, get_jwt_identity(), PW, CEHCK_PW, EMAIL)
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
+#회원 정보 반환
 @BP.route('/API/V1/auth/get_userinfo')
 @jwt_required
 def API_V1_auth__get_userinfo():
@@ -62,7 +88,28 @@ def API_V1_auth__get_userinfo():
         PROCESS_TIME = process_time
     )
 
-@BP.route('/API/V1/auth/level_up')
+#회원 정보 반환
+@BP.route('/API/V1/auth/get_all_user')
+@jwt_required
+def API_V1_auth__get_all_user():
+    process_time = time.time()
+    if check_admin(g.db, get_jwt_identity()):
+        try:
+            result = get_all_user(g.db)
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
+#등업
+@BP.route('/API/V1/auth/level_up', methods = ['POST'])
 @jwt_required
 def API_V1_auth__level_up_admin():
     process_time = time.time()
@@ -76,6 +123,63 @@ def API_V1_auth__level_up_admin():
             result = status = "fail"
     else:
         result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
+#사용자가 시도한 문제 반환
+@BP.route('/API/V1/auth/get_myproblem')
+@jwt_required
+def API_V1_auth__get_myproblem():
+    process_time = time.time()
+    if check_user(g.db, get_jwt_identity()):
+        try:
+            result = get_myproblem(g.db, get_jwt_identity())
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
+#회원 탈퇴
+@BP.route('/API/V1/auth/withdrawal')
+@jwt_required
+def API_V1_auth__withdrawal():
+    process_time = time.time()
+    if check_user(g.db, get_jwt_identity()):
+        try:
+            result = withdrawal(g.db, get_jwt_identity())
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
+#어드민 확인
+@BP.route('/API/V1/auth/check_admin')
+@jwt_required
+def API_V1_auth__check_admin():
+    process_time = time.time()
+    status = "success"
+    if check_admin(g.db, get_jwt_identity()):
+        result = True
+    else:
+        result = False
     process_time = time.time() - process_time
     return jsonify(
         API_STATUS = status,

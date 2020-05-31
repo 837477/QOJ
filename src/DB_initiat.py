@@ -21,6 +21,11 @@ def close_db():
         if db.open:
             db.close()
 
+    db = g.pop('testdb', None)
+    if db is not None:
+        if db.open:
+            db.close()
+
 #첫 DB 초기화
 def init_db():
 	#DB연결 (QOJ)
@@ -52,6 +57,8 @@ def init_db():
         sql = open("models/table/table__QOJ_problem.sql").read()
         cursor.execute(sql)
         sql = open("models/table/table__QOJ_user_problem.sql").read()
+        cursor.execute(sql)
+        sql = open("models/table/table__QOJ_view_problem.sql").read()
         cursor.execute(sql)
         
     db.commit()
@@ -138,27 +145,27 @@ def init_data():
     #####################################################################
     #QOJ_manage_testDB 초기화
     with db.cursor() as cursor:
-        query = 'SELECT * FROM QOJ_manage_testDB WHERE mt_table_name = "practice" and class_id = "%s";'
+        query = 'SELECT * FROM QOJ_manage_testDB WHERE mt_table_name = "QOJ$QOJ_ADMIN$practice" and class_id = "%s";'
         cursor.execute(query, (QOJ_class['class_id'],))
         result = cursor.fetchone()
 
     if not result:
         with db.cursor() as cursor:
             query = "INSERT INTO QOJ_manage_testDB(class_id, mt_table_name) VALUES(%s, %s);"
-            cursor.execute(query, (QOJ_class['class_id'], "practice",))
+            cursor.execute(query, (QOJ_class['class_id'], "QOJ$QOJ_ADMIN$practice",))
         db.commit()
     #######################################################################
 
     ######################################################################
     #QOJ_problem_group 초기화
     with db.cursor() as cursor:
-        query = 'SELECT * FROM QOJ_problem_group WHERE pg_name = "연습문제" and class_id = "%s";'
+        query = 'SELECT * FROM QOJ_problem_group WHERE pg_title = "연습문제" and class_id = "%s";'
         cursor.execute(query, (QOJ_class['class_id'],))
         result = cursor.fetchone()
 
     if not result:
         with db.cursor() as cursor:
-            query = "INSERT INTO QOJ_problem_group(pg_name, class_id) VALUES(%s, %s);"
+            query = "INSERT INTO QOJ_problem_group(pg_title, class_id) VALUES(%s, %s);"
             cursor.execute(query, ("연습문제", QOJ_class['class_id'],))
         db.commit()
     #######################################################################
@@ -166,19 +173,19 @@ def init_data():
     ######################################################################
     #QOJ_problem 초기화
     with db.cursor() as cursor:
-        query = 'SELECT * FROM QOJ_problem_group WHERE class_id = "%s" and pg_name = "연습문제";'
+        query = 'SELECT * FROM QOJ_problem_group WHERE class_id = "%s" and pg_title = "연습문제";'
         cursor.execute(query, (QOJ_class['class_id'],))
         QOJ_problem_group = cursor.fetchone()
 
     with db.cursor() as cursor:
-        query = 'SELECT * FROM QOJ_problem WHERE p_name = "학생을 찾아라!" and pg_id = "%s";'
+        query = 'SELECT * FROM QOJ_problem WHERE p_title = "학생을 찾아라!" and pg_id = "%s";'
         cursor.execute(query, (QOJ_problem_group['pg_id'],))
         result = cursor.fetchone()
 
     if not result:
         with db.cursor() as cursor:
-            query = "INSERT INTO QOJ_problem(p_name, p_content, pg_id, p_answer, p_table_name) VALUES(%s, %s, %s, %s, %s);"
-            cursor.execute(query, ("학생을 찾아라!", "test 테이블은 세종대학교 학생 정보를 담은 테이블입니다. test 테이블로부터 컴퓨터공학과 학생들만 조회하려고 할 때, 쿼리문을 작성해주세요.", QOJ_problem_group['pg_id'], "SELECT * FROM test WHERE major='컴퓨터공학과';", "practice@",))
+            query = "INSERT INTO QOJ_problem(p_title, p_content, pg_id, p_answer) VALUES(%s, %s, %s, %s);"
+            cursor.execute(query, ("학생을 찾아라!", "practice 테이블은 세종대학교 학생 정보를 담은 테이블입니다. test 테이블로부터 컴퓨터공학과 학생들만 조회하려고 할 때, 쿼리문을 작성해주세요.", QOJ_problem_group['pg_id'], "SELECT * FROM practice WHERE major='컴퓨터공학과';",))
         db.commit()
     #######################################################################
 
@@ -191,27 +198,27 @@ def init_data():
     #QOJ_test 초기화
     with db.cursor() as cursor:
         #query = 'SELECT 1 FROM Information_schema.tables WHERE table_name = "QOJ_ADMIN$practice" AND table_schema = "QOJ_test";'
-        query = "SELECT * FROM QOJ_ADMIN$practice WHERE sid = 1;"
+        query = "SELECT * FROM QOJ$QOJ_ADMIN$practice WHERE sid = 1;"
         cursor.execute(query)
         result = cursor.fetchone()
 
     if not result:
         with db.cursor() as cursor:
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (1, '홍길동', '16008740', '컴퓨터공학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (1, '홍길동', '16008740', '컴퓨터공학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (2, '김나무', '21007221', '건축공학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (2, '김나무', '21007221', '건축공학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (3, '오지오', '18000002', '나노신소재학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (3, '오지오', '18000002', '나노신소재학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (4, '강정우', '16004122', '데이터사이언스학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (4, '강정우', '16004122', '데이터사이언스학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (5, '하원빈', '17005123', '컴퓨터공학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (5, '하원빈', '17005123', '컴퓨터공학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (6, '서정빈', '17005812', '수학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (6, '서정빈', '17005812', '수학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (7, '김영석', '19001020', '물리천문학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (7, '김영석', '19001020', '물리천문학과');"
             cursor.execute(query)
-            query = "INSERT INTO QOJ_ADMIN$practice(sid, name, id, major) VALUES (8, '나장후', '20004210', '지능기전학과');"
+            query = "INSERT INTO QOJ$QOJ_ADMIN$practice(sid, name, id, major) VALUES (8, '나장후', '20004210', '지능기전학과');"
             cursor.execute(query)
         db.commit()
     #######################################################################

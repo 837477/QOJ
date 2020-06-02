@@ -48,7 +48,7 @@ def check_class_admin(db, class_id, JWT):
     if not USER:
         return False
 
-    result = QOJ__user_class(db).find__uc_type(JWT, class_id)
+    result = QOJ__user_class(db).find__user_class_id(JWT, class_id)
 
     if result:
         if result['uc_type'] == 1:

@@ -21,7 +21,7 @@ def get_problem_group2(db, pg_id):
 	return result
 
 #문제집 속 문제들 반환
-def get_problem_list(db, user_id, pg_id):
+def QOJ__join_query(db, user_id, pg_id):
     result = QOJ__problem(db).find__problem_list(user_id, pg_id)
 
     return result
@@ -84,7 +84,7 @@ def delete_problem(db, p_id):
 
 #어드민 전용 문제 반환 (정답도 반환됨)
 def get_admin_problem(db, p_id):
-    result = QOJ__problem(db).find_one_admin(p_id)
+    result = QOJ__problem(db).find_one(p_id)
 
     return result
 
@@ -141,7 +141,7 @@ def query_execute(QOJ_db, testDB_db, query, class_id):
 #사용자 query submit
 def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
     class_info = QOJ__class(QOJ_db).find__id_one(class_id)
-    problem_object = QOJ__problem(QOJ_db).find_one_admin(p_id)
+    problem_object = QOJ__problem(QOJ_db).find_one(p_id)
 
     query_answer = problem_object['p_answer']
 

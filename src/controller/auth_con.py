@@ -18,7 +18,7 @@ def sign_up(db, ID, PW, NAME, EMAIL):
 	
 	#DB에서 성공적으로 조회되면, 연습문제 연결하고 회원가입 성공!
 	if USER:
-		test_class = QOJ__class(db).find__one("QOJ 연습문제", "QOJ_ADMIN")		
+		test_class = QOJ__class(db).find__one_name_admin("QOJ 연습문제", "QOJ_ADMIN")		
 		QOJ__user_class(db).insert__one(ID, test_class['class_id'], 0)
 
 		return create_access_token(

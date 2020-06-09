@@ -265,6 +265,45 @@ class QOJ__problem(object):
         self.db.commit()
         return "success" 
 
+class QOJ__manage_testDB(object):
+    def __init__(self, db):
+        super(QOJ__manage_testDB, self).__init__()
+        self.db = db
+
+    #테스트 디비 테이블 정보 삽입
+    def insert__one(self, class_id, mt_table_name):
+        with self.db.cursor() as cursor:
+            query = "INSERT INTO QOJ_manage_testdb(class_id, mt_table_name) VALUES(%s, %s);"
+            cursor.execute(query, (class_id, mt_table_name,))
+        self.db.commit()
+        return "success"
+
+    #테스트 디비 정보 삭제
+    def delete__one(self, mt_id):
+        with self.db.cursor() as cursor:
+            query = "DELETE FROM QOJ_manage_testdb WHERE mt_id=%s;"
+            cursor.execute(query, (mt_id,))
+        self.db.commit()
+        return "success"
+
+    #테스트 디비 정보 반환
+    def find__one(self, mt_id):
+        with self.db.cursor() as cursor:
+            query = "SELECT * FROM QOJ_manage_testdb WHERE mt_id=%s;"
+            cursor.execute(query, (mt_id,))
+            result = cursor.fetchone()
+        self.db.commit()
+        return result
+
+    #특정 분반의 테스트 디비 정보들 반환
+    def find__class_id(self, class_id):
+        with self.db.cursor() as cursor:
+            query = "SELECT * FROM QOJ_manage_testdb WHERE class_id=%s;"
+            cursor.execute(query, (class_id,))
+            result = cursor.fetchall()
+        self.db.commit()
+        return result
+
 class QOJ__join_query(object):
     def __init__(self, db):
         super(QOJ__join_query, self).__init__()
@@ -315,49 +354,15 @@ class QOJ__v_problem(object):
         self.db.commit()
         return result
 
-    def find__problem_group__class(self, class_id):
-        with self.db.cursor() as cursor:
-            query = "SELECT * FROM (SELECT A.*, B.class_name FROM QOJ_problem_group AS A LEFT JOIN (SELECT * FROM QOJ_class) AS B ON A.class_id = B.class_id) AS RESULT_JOIN WHERE class_id = %s;"
-            cursor.execute(query, (class_id,))
-            result = cursor.fetchall()
-        self.db.commit()
-        return result
-
-class QOJ__manage_testDB(object):
+class QOJ__v_all_problem(object):
     def __init__(self, db):
-        super(QOJ__manage_testDB, self).__init__()
+        super(QOJ__v_all_problem, self).__init__()
         self.db = db
 
-    #테스트 디비 테이블 정보 삽입
-    def insert__one(self, class_id, mt_table_name):
+    def find__problem_analysis(self, class_id, pg_id):
         with self.db.cursor() as cursor:
-            query = "INSERT INTO QOJ_manage_testdb(class_id, mt_table_name) VALUES(%s, %s);"
-            cursor.execute(query, (class_id, mt_table_name,))
-        self.db.commit()
-        return "success"
-
-    #테스트 디비 정보 삭제
-    def delete__one(self, mt_id):
-        with self.db.cursor() as cursor:
-            query = "DELETE FROM QOJ_manage_testdb WHERE mt_id=%s;"
-            cursor.execute(query, (mt_id,))
-        self.db.commit()
-        return "success"
-
-    #테스트 디비 정보 반환
-    def find__one(self, mt_id):
-        with self.db.cursor() as cursor:
-            query = "SELECT * FROM QOJ_manage_testdb WHERE mt_id=%s;"
-            cursor.execute(query, (mt_id,))
-            result = cursor.fetchone()
-        self.db.commit()
-        return result
-
-    #특정 분반의 테스트 디비 정보들 반환
-    def find__class_id(self, class_id):
-        with self.db.cursor() as cursor:
-            query = "SELECT * FROM QOJ_manage_testdb WHERE class_id=%s;"
-            cursor.execute(query, (class_id,))
+            query = "SELECT * FROM v_all_problem WHERE class_id=%s AND pg_id=%s;"
+            cursor.execute(query, (class_id, pg_id,))
             result = cursor.fetchall()
         self.db.commit()
         return result
@@ -375,3 +380,5 @@ class QOJ__testDB(object):
             result = cursor.fetchall()
         self.db.commit()
         return result
+
+

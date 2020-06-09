@@ -53,10 +53,10 @@ def API_V1_auth__sign_in():
 @jwt_required
 def API_V1_auth__update():
     process_time = time.time()
+    PW = request.get_json()['pw']
+    CEHCK_PW = request.get_json()['check_pw']
+    EMAIL = request.get_json()['email']
     if check_user(g.db, get_jwt_identity()):
-        PW = request.get_json()['pw']
-        CEHCK_PW = request.get_json()['check_pw']
-        EMAIL = request.get_json()['email']
         try:
             result = user_update(g.db, get_jwt_identity(), PW, CEHCK_PW, EMAIL)
             status = "success"
@@ -100,6 +100,7 @@ def API_V1_auth__get_all_user():
         except:
             result = status = "fail"
     else:
+        status = "success"
         result = "Access denied"
     process_time = time.time() - process_time
     return jsonify(
@@ -113,15 +114,16 @@ def API_V1_auth__get_all_user():
 @jwt_required
 def API_V1_auth__level_up_admin():
     process_time = time.time()
+    TARGET_ID = request.get_json()['target_id']
+    TARGET_LEVEL = request.get_json()['target_level']
     if check_admin(g.db, get_jwt_identity()):
-        TARGET_ID = request.get_json()['target_id']
-        TARGET_LEVEL = request.get_json()['target_level']
         try:
             result = get_law_1(g.db, law_name)
             status = "success"
         except:
             result = status = "fail"
     else:
+        status = "success"
         result = "Access denied"
     process_time = time.time() - process_time
     return jsonify(
@@ -142,6 +144,7 @@ def API_V1_auth__get_myproblem():
         except:
             result = status = "fail"
     else:
+        status = "success"
         result = "Access denied"
     process_time = time.time() - process_time
     return jsonify(
@@ -162,6 +165,7 @@ def API_V1_auth__withdrawal():
         except:
             result = status = "fail"
     else:
+        status = "success"
         result = "Access denied"
     process_time = time.time() - process_time
     return jsonify(

@@ -190,21 +190,18 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
     else:
         QOJ__user_problem(QOJ_db).insert__one(JWT, p_id, 0, query)
         return False
-    
 
+#특정 문제의 특정 사용자의 마지막 제출 쿼리 가져오기
 def get_last_query(db, JWT, p_id):
     result = QOJ__user_problem(db).find__last_problem(JWT, p_id)
 
     return result
 
+#특정 분반의 특정 문제집의 모든 학생에 대한 점수 정보
+def get_total_score(db, class_id, pg_id):
+    result = QOJ__v_all_problem(db).find__problem_analysis(class_id, pg_id)
 
-def parseSelectSql(sql=None):
-    parsedSelect = {}
-    sqlParse = sqlparse.parse(sql)
-    for token in sqlParse[0].tokens:
-        if token._get_repr_name() == 'Identifier':
-            parsedSelect ['tableName'] = token.value
-    return parsedSelect 
+    return result
 
 #######################################################################
 
@@ -268,3 +265,11 @@ def SQL_list(file):
 #print([str(t) for t in result[0].tokens if t.ttype is None][0])
 #[str(t).upper() for t in result[0].tokens]
 #print([str(t) for t in result[0].tokens]) in ["select".... 이런식 ㄱ ㄱ]
+
+def parseSelectSql(sql=None):
+    parsedSelect = {}
+    sqlParse = sqlparse.parse(sql)
+    for token in sqlParse[0].tokens:
+        if token._get_repr_name() == 'Identifier':
+            parsedSelect ['tableName'] = token.value
+    return parsedSelect 

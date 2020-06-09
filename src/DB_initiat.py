@@ -60,6 +60,8 @@ def init_db():
         cursor.execute(sql)
         sql = open("models/table/table__QOJ_view_problem.sql").read()
         cursor.execute(sql)
+        sql = open("models/table/table__QOJ_view_all_problem.sql").read()
+        cursor.execute(sql)
         
     db.commit()
     db.close()

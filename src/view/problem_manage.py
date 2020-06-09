@@ -42,6 +42,7 @@ def API_V1_auth__get_problem_group2():
     if check_user(g.db, get_jwt_identity()):
         try:
             result = get_problem_group2(g.db, pg_id)
+            status = "success"
         except:
             result = status = "fail"
     else:
@@ -61,6 +62,7 @@ def API_V1_auth__get_problem_list():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_user(g.db, get_jwt_identity()):
+        result = get_problem_list(g.db, get_jwt_identity(), pg_id)
         try:
             result = get_problem_list(g.db, get_jwt_identity(), pg_id)
             status = "success"
@@ -76,15 +78,15 @@ def API_V1_auth__get_problem_list():
         PROCESS_TIME = process_time
     )
 
-#problem
-@BP.route('/API/V1/problem_manage/get_myproblem', methods = ['POST'])
+#특정 문제에 대한 반환
+@BP.route('/API/V1/problem_manage/get_problem', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_myproblem():
+def API_V1_auth__get_problem():
     process_time = time.time()
     p_id = request.get_json()['p_id']
     if check_user(g.db, get_jwt_identity()):
         try:
-            result = get_myproblem(g.db, get_jwt_identity(), p_id)
+            result = get_problem(g.db, get_jwt_identity(), p_id)
             status = "success"
         except:
             result = status = "fail"
@@ -214,6 +216,50 @@ def API_V1_auth__change_exam():
         PROCESS_TIME = process_time
     )
 
+#문제집 시험모드 체크
+@BP.route('/API/V1/problem_manage/check_exam', methods = ['POST'])
+@jwt_required
+def API_V1_auth__check_exam():
+    process_time = time.time()
+    pg_id = request.get_json()['pg_id']
+    if check_admin(g.db, get_jwt_identity()):    
+        try:
+            result = check_exam(g.db, pg_id)
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        status = "success"
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+#특정 문제집의 모든 학생에 대한 점수 정보
+@BP.route('/API/V1/problem_manage/get_total_score', methods = ['POST'])
+@jwt_required
+def API_V1_auth__get_total_score():
+    process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
+    PG_ID = request.get_json()['pg_id']
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
+        try:
+            result = get_total_score(g.db, CLASS_ID, PG_ID)
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        status = "success"
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
 
 #################################################################################
 
@@ -273,6 +319,27 @@ def API_V1_auth__last_query():
     if check_user(g.db, get_jwt_identity()):
         try:
             result = get_last_query(g.db, get_jwt_identity(), P_ID)
+            status = "success"
+        except:
+            result = status = "fail"
+    else:
+        status = "success"
+        result = "Access denied"
+    process_time = time.time() - process_time
+    return jsonify(
+        API_STATUS = status,
+        RESULT = result,
+        PROCESS_TIME = process_time
+    )
+
+#사용자가 시도한 문제 반환
+@BP.route('/API/V1/problem_manage/get_myproblem')
+@jwt_required
+def API_V1_problem_manage__get_myproblem():
+    process_time = time.time()
+    if check_user(g.db, get_jwt_identity()):
+        try:
+            result = get_myproblem(g.db, get_jwt_identity())
             status = "success"
         except:
             result = status = "fail"
@@ -381,16 +448,15 @@ def API_V1_auth__admin_problem():
         PROCESS_TIME = process_time
     )
 
-#특정 문제집의 모든 학생에 대한 점수 정보
-@BP.route('/API/V1/problem_manage/get_total_score', methods = ['POST'])
+#사용자가 시도한 문제 반환
+@BP.route('/API/V1/problem_manage/get_up_id', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_total_score():
+def API_V1_problem_manage__get_up_id():
     process_time = time.time()
-    CLASS_ID = request.get_json()['class_id']
-    PG_ID = request.get_json()['pg_id']
-    if check_class_admin(g.db, class_id, get_jwt_identity()):
+    UP_ID = request.get_json()['up_id']
+    if check_user(g.db, get_jwt_identity()):
         try:
-            result = get_total_score(g.db, CLASS_ID, PG_ID)
+            result = get_up_id(g.db, UP_ID)
             status = "success"
         except:
             result = status = "fail"

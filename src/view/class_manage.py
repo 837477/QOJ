@@ -129,6 +129,7 @@ def API_V1_auth__update_class():
     CLASS_ADMIN = request.get_json()['class_admin']
     CLASS_SUB_ADMIN = request.get_json()['class_sub_admin']
     if check_admin(g.db, get_jwt_identity()):    
+        result = update_class(g.db, CLASS_ID, CLASS_NAME, CLASS_ADMIN, CLASS_SUB_ADMIN)
         try:
             result = update_class(g.db, CLASS_ID, CLASS_NAME, CLASS_ADMIN, CLASS_SUB_ADMIN)
             status = "success"

@@ -132,27 +132,6 @@ def API_V1_auth__level_up_admin():
         PROCESS_TIME = process_time
     )
 
-#사용자가 시도한 문제 반환
-@BP.route('/API/V1/auth/get_myproblem')
-@jwt_required
-def API_V1_auth__get_myproblem():
-    process_time = time.time()
-    if check_user(g.db, get_jwt_identity()):
-        try:
-            result = get_myproblem(g.db, get_jwt_identity())
-            status = "success"
-        except:
-            result = status = "fail"
-    else:
-        status = "success"
-        result = "Access denied"
-    process_time = time.time() - process_time
-    return jsonify(
-        API_STATUS = status,
-        RESULT = result,
-        PROCESS_TIME = process_time
-    )
-
 #회원 탈퇴
 @BP.route('/API/V1/auth/withdrawal')
 @jwt_required

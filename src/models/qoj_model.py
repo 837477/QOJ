@@ -76,6 +76,14 @@ class QOJ__class(object):
         self.db.commit()
         return "success"
 
+    #분반 수정
+    def update__one(self, class_id, class_name, class_admin):
+        with self.db.cursor() as cursor:
+            query = "UPDATE QOJ_class SET class_name=%s, user_id=%s WHERE class_id=%s;"
+            cursor.execute(query, (class_name, class_admin, class_id,))
+        self.db.commit()
+        return "success"
+
     #분반 삭제
     def delete__one(self, class_id):
         with self.db.cursor() as cursor:
@@ -163,12 +171,23 @@ class QOJ__user_problem(object):
         self.db.commit()
         return "success"
     
-    
-    #특정 사용자가 특정 문제에서 마지막에 제출한 문제 반환
+    #특정 사용자가 특정 문제에서 마지막에 제출한 문제 반환 (정답이 있으면 정답중 가장 최근 것 반환)
     def find__last_problem(self, user_id, p_id):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM QOJ_user_problem WHERE user_id=%s AND p_id=%s ORDER BY up_date DESC LIMIT 1;"
+            query = "SELECT * FROM QOJ_user_problem WHERE user_id=%s AND p_id=%s AND up_state=1 ORDER BY up_date DESC LIMIT 1;"
             cursor.execute(query, (user_id, p_id,))
+            result = cursor.fetchone()
+            if not result:
+                query = "SELECT * FROM QOJ_user_problem WHERE user_id=%s AND p_id=%s ORDER BY up_date DESC LIMIT 1;"
+                cursor.execute(query, (user_id, p_id,))
+                result = cursor.fetchone()
+        self.db.commit()
+        return result
+    
+    def find__up_id(self, up_id):
+        with self.db.cursor() as cursor:
+            query = "SELECT * FROM QOJ_user_problem WHERE up_id=%s";
+            cursor.execute(query, (up_id,))
             result = cursor.fetchone()
         self.db.commit()
         return result
@@ -325,31 +344,19 @@ class QOJ__join_query(object):
         self.db.commit()
         return result
 
-    def find__myproblem(self, user_id, p_id):
+    #유저가 푼 특정 문제 반환.
+    def find__problem(self, user_id, p_id):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM (SELECT A.p_id, A.p_title, A.p_content, B.up_state, B.up_query FROM QOJ_problem AS A LEFT JOIN (SELECT p_id, up_state, up_query FROM QOJ_user_problem WHERE user_id=%s) AS B ON A.p_id = B.p_id) AS RESULT_JOIN WHERE p_id=%s;"
+            query = "SELECT DISTINCT(p_id), p_title, p_content, up_state, up_query, pg_id FROM (SELECT A.up_id, A.up_query, A.up_state, A.up_date, A.user_id, B.* FROM (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS A LEFT JOIN (SELECT * FROM QOJ_problem) AS B ON A.p_id = B.p_id ) AS RESULT WHERE p_id=%s;"
             cursor.execute(query, (user_id, p_id,))
             result = cursor.fetchone()
         self.db.commit()
         return result
-    
+
     def find__problem_list(self, user_id, pg_id):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM (SELECT A.pg_id, A.p_id, A.p_title, B.up_state FROM QOJ_problem AS A LEFT JOIN (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS B ON A.p_id = B.p_id) AS RESULT_JOIN WHERE pg_id=%s;"
+            query = "SELECT * FROM (SELECT A.pg_id, A.p_id, A.p_title, B.up_id, B.up_state, B.user_id, B.up_query FROM QOJ_problem AS A LEFT JOIN (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS B ON A.p_id = B.p_id) AS RESULT_JOIN WHERE pg_id=%s;"
             cursor.execute(query, (user_id, pg_id,))
-            result = cursor.fetchall()
-        self.db.commit()
-        return result
-
-class QOJ__v_problem(object):
-    def __init__(self, db):
-        super(QOJ__v_problem, self).__init__()
-        self.db = db
-
-    def find__user(self, user_id):
-        with self.db.cursor() as cursor:
-            query = "SELECT class_id, class_name, p_id, p_title, pg_exam, pg_id, pg_activate, up_state FROM v_problem WHERE user_id=%s AND pg_activate=1"
-            cursor.execute(query, (user_id,))
             result = cursor.fetchall()
         self.db.commit()
         return result
@@ -361,8 +368,17 @@ class QOJ__v_all_problem(object):
 
     def find__problem_analysis(self, class_id, pg_id):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM v_all_problem WHERE class_id=%s AND pg_id=%s;"
+            query = "SELECT * FROM v_all_problem WHERE class_id=%s AND pg_id=%s ORDER BY p_id ASC, user_id ASC;"
             cursor.execute(query, (class_id, pg_id,))
+            result = cursor.fetchall()
+        self.db.commit()
+        return result
+    
+    #유저가 풀었던 모든 문제들 반환
+    def find__myproblem(self, user_id):
+        with self.db.cursor() as cursor:
+            query = "SELECT * FROM v_all_problem WHERE user_id = %s AND up_query IS NOT NULL;"
+            cursor.execute(query, (user_id,))
             result = cursor.fetchall()
         self.db.commit()
         return result
@@ -374,11 +390,21 @@ class QOJ__testDB(object):
         super(QOJ__testDB, self).__init__()
         self.db = db
 
-    def execute_query(self, query):
+    #관리자는 문제를 생성해야하기 때문에,
+    #실제 DB에 커밋을 시켜준다.
+    def execute_query_admin(self, query):
         with self.db.cursor() as cursor:
             cursor.execute(query)
             result = cursor.fetchall()
-        self.db.commit()
+            self.db.commit()
+        return result
+    
+    #유저가 작성한 쿼리는 무조건 트랜젝션으로 실제 디비에 commit하지 않음.
+    #어차피 사용자는 SELECT만 치기 때문에 보안적 측면을 위해서!
+    def execute_query_user(self, query):
+        with self.db.cursor() as cursor:
+            cursor.execute(query)
+            result = cursor.fetchall()
         return result
 
 

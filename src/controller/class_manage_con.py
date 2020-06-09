@@ -65,22 +65,21 @@ def create_class(db, class_name, class_admin, class_sub_admin):
 	return "success"
 
 def update_class(db, class_id, class_name, class_admin, class_sub_admin):
-	QOJ__user_class(db).delete__admin_in_class(class_id)
-
 	USER = QOJ__user(db).find__one(user_id = class_admin)
 	if not USER:
 		return "None user"
 
-	result = QOJ__class(db).insert__one(class_name, USER['user_id'])
+	result = QOJ__class(db).update__one(class_id, class_name, USER['user_id'])
+	QOJ__user_class(db).delete__admin_in_class(class_id)
 
 	if result == "success":
 		admin_list = []
 
 		#해당 분반 찾기
-		class_info = QOJ__class(db).find__one_name_admin(class_name, USER['user_id'])
+		class_info = QOJ__class(db).find__one_id(class_id)
 		
 		#교수 관리자 목록에 넣기.
-		admin_list.append(USER['user_id'])
+		admin_list.append(class_info['user_id'])
 		admin_list += class_sub_admin
 		admin_list = list(set(admin_list))
 		

@@ -63,11 +63,6 @@ def get_all_user(db):
 
 	return result
 
-def get_myproblem(db, JWT):
-	result = QOJ__v_problem(db).find__user(user_id = JWT)
-
-	return result
-
 def withdrawal(db, JWT):
 	USER = QOJ__user(db).find__one(user_id = JWT)
 	if not USER: abort(401)

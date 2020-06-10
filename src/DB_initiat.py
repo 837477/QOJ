@@ -83,7 +83,7 @@ def init_db():
     
     #DB 테이블 생성
     with db.cursor() as cursor:
-        sql = open("models/table/table__testDB_practice.sql").read()
+        sql = open("models/testdb_table/table__testDB_practice.sql").read()
         cursor.execute(sql)
 
     db.commit()

@@ -13,7 +13,7 @@ BP = Blueprint('class_manage', __name__)
 #분반 정보 반환
 @BP.route('/API/V1/class_manage/get_classinfo', methods=['POST'])
 @jwt_required
-def API_V1_auth__get_classinfo():
+def API_V1_class_manage__get_classinfo():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     if check_user(g.db, get_jwt_identity()):
@@ -35,7 +35,7 @@ def API_V1_auth__get_classinfo():
 
 @BP.route('/API/V1/class_manage/get_class')
 @jwt_required
-def API_V1_auth__get_class():
+def API_V1_class_manage__get_class():
     process_time = time.time()
     if check_user(g.db, get_jwt_identity()):
         try:
@@ -56,7 +56,7 @@ def API_V1_auth__get_class():
 #관리자 분반 반환
 @BP.route('/API/V1/class_manage/get_admin_class')
 @jwt_required
-def API_V1_auth__get_admin_class():
+def API_V1_class_manage__get_admin_class():
     process_time = time.time()
     if check_user(g.db, get_jwt_identity()):
         try:
@@ -77,7 +77,7 @@ def API_V1_auth__get_admin_class():
 #모든 분반 조회
 @BP.route('/API/V1/class_manage/get_all_class')
 @jwt_required
-def API_V1_auth__get_all_class():
+def API_V1_class_manage__get_all_class():
     process_time = time.time()
     if check_admin(g.db, get_jwt_identity()):
         try:
@@ -98,7 +98,7 @@ def API_V1_auth__get_all_class():
 #분반 생성
 @BP.route('/API/V1/class_manage/create_class', methods=['POST'])
 @jwt_required
-def API_V1_auth__create_class():
+def API_V1_class_manage__create_class():
     process_time = time.time()
     CLASS_NAME = request.get_json()['class_name']
     CLASS_ADMIN = request.get_json()['class_admin']
@@ -122,7 +122,7 @@ def API_V1_auth__create_class():
 #분반 수정
 @BP.route('/API/V1/class_manage/update_class', methods=['POST'])
 @jwt_required
-def API_V1_auth__update_class():
+def API_V1_class_manage__update_class():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     CLASS_NAME = request.get_json()['class_name']
@@ -148,7 +148,7 @@ def API_V1_auth__update_class():
 #분반 삭제
 @BP.route('/API/V1/class_manage/delete_class', methods=['POST'])
 @jwt_required
-def API_V1_auth__delete_class():
+def API_V1_class_manage__delete_class():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     if check_admin(g.db, get_jwt_identity()):
@@ -170,7 +170,7 @@ def API_V1_auth__delete_class():
 #분반 소속 회원 반환
 @BP.route('/API/V1/class_manage/get_class_member', methods=['POST'])
 @jwt_required
-def API_V1_auth__get_class_member():
+def API_V1_class_manage__get_class_member():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     if check_admin(g.db, get_jwt_identity()) or check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
@@ -192,7 +192,7 @@ def API_V1_auth__get_class_member():
 #분반 회원 추가
 @BP.route('/API/V1/class_manage/push_user', methods=['POST'])
 @jwt_required
-def API_V1_auth__push_user():
+def API_V1_class_manage__push_user():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     USER_LIST = request.get_json()['user_list']

@@ -160,30 +160,48 @@ def delete_testdb(QOJ_db, testDB_db, mt_id):
 #사용자 query execute
 def query_execute(QOJ_db, testDB_db, query, class_id):
     class_info = QOJ__class(QOJ_db).find__one_id(class_id)
-    
-    result = sqlparse.parse(query)
+
+    #대문자 변경 및 세미콜론 제거
+    query = query.upper()
+    query = query.replace(";", "")
+
+    #쿼리 다 분해
+    query_split = query.split()
 
     #허용안하는 키워드 분별
-    keyword_checking = [str(t).upper() for t in result[0].tokens]
-    if 'DROP' in keyword_checking or 'DELETE' in keyword_checking or 'UPDATE' in keyword_checking or 'USE' in keyword_checking or 'GRANT' in keyword_checking or 'SET' in keyword_checking or 'CREATE' in keyword_checking:
+    if 'DROP' in query_split or 'DELETE' in query_split or 'UPDATE' in query_split or 'USE' in query_split or 'GRANT' in query_split or 'SET' in query_split or 'CREATE' in query_split:
         return "Do not execute"
-    
-    header = ""
-    #테이블 이름 빼오기
-    table_name = parseSelectSql(sql = query)
-    if table_name:
-        header = "QOJ$" + class_info['user_id'] + "$"
-        query = query.replace(table_name['tableName'], (header + table_name['tableName']))
+
+    #해당 분반의 테이블 이름
+    testdb_table_result = QOJ__join_query(QOJ_db).find__class__manage_testdb(class_id)
+    testdb_table_list = []
+    for table in testdb_table_result:
+        testdb_table_list.append(table['mt_table_name'].upper())
+
+    #최종 쿼리 제작
+    result_query = []
+    if query_split:
+        for keyword in query_split:
+            temp_keyword = keyword
+            temp = keyword.replace("(", "")
+            temp = temp.replace(")", "")
+            parse_name = "QOJ$" + class_info['user_id'] + "$" + temp
+            if parse_name in testdb_table_list:
+                temp_keyword = keyword.replace(temp, parse_name)
+            result_query.append(temp_keyword)
+    else:
+        return "Do not execute"
+    result_query = ' '.join(result_query)
+    result_query = result_query + ';'
 
     #테스트 디비에 실행!
     try:
-        result = QOJ__testDB(testDB_db).execute_query_user(query)
+        result = QOJ__testDB(testDB_db).execute_query_user(result_query)
     except Exception as e:
         result = str(e)
         result = result.replace("qoj_test.", "")
         result = result.replace("qoj.", "")
-        result = result.replace(header, "")
-        result = result.replace(header.lower(), "")
+        result = result.replace("QOJ$" + class_info['user_id'] + "$", "")
 
     if not result:
         result = "Empty set"
@@ -197,43 +215,75 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
 
     query_answer = problem_object['p_answer']
 
-    user_query = query
+    #대문자 변경 및 세미콜론 제거
+    query = query.upper()
+    query = query.replace(";", "")
 
-    result = sqlparse.parse(query)
+    query_answer = query_answer.upper()
+    query_answer = query_answer.replace(";", "")
+
+    #쿼리 다 분해
+    user_query = query_split = query.split()
+    query_answer = query_answer.split()
 
     #허용안하는 키워드 분별
-    keyword_checking = [str(t).upper() for t in result[0].tokens]
-    if 'DROP' in keyword_checking or 'DELETE' in keyword_checking or 'UPDATE' in keyword_checking or 'USE' in keyword_checking or 'GRANT' in keyword_checking or 'SET' in keyword_checking or 'CREATE' in keyword_checking or 'INSERT' in keyword_checking:
+    if 'DROP' in query_split or 'DELETE' in query_split or 'UPDATE' in query_split or 'USE' in query_split or 'GRANT' in query_split or 'SET' in query_split or 'CREATE' in query_split or 'INSERT' in query_split:
         return "Do not execute"
     
-    header = ""
-    #사용자 쿼리문 테이블명 파싱
-    table_name = parseSelectSql(sql = user_query)
-    if table_name:
-        header = "QOJ$" + class_info['user_id'] + "$"
-        user_query = user_query.replace(table_name['tableName'], (header + table_name['tableName']))
-    
-    #사용자 쿼리문 테이블명 파싱
-    table_name = parseSelectSql(sql = query_answer)
-    if table_name:
-        query_answer = query_answer.replace(table_name['tableName'], ("QOJ$" + class_info['user_id'] + "$" + table_name['tableName']))
+    #해당 분반의 테이블 이름
+    testdb_table_result = QOJ__join_query(QOJ_db).find__class__manage_testdb(class_id)
+    testdb_table_list = []
+    for table in testdb_table_result:
+        testdb_table_list.append(table['mt_table_name'].upper())
+
+
+    #최종 쿼리 제작 (사용자)
+    user_result_query = []
+    if query_split:
+        for keyword in query_split:
+            temp_keyword = keyword
+            temp = keyword.replace("(", "")
+            temp = temp.replace(")", "")
+            parse_name = "QOJ$" + class_info['user_id'] + "$" + temp
+            if parse_name in testdb_table_list:
+                temp_keyword = keyword.replace(temp, parse_name)
+            user_result_query.append(temp_keyword)
+    else:
+        return "Do not execute"
+    user_result_query = ' '.join(user_result_query)
+    user_result_query = user_result_query + ';'
+
+    #최종 쿼리 제작 (관리자)
+    admin_result_query = []
+    if query_answer:
+        for keyword in query_answer:
+            temp_keyword = keyword
+            temp = keyword.replace("(", "")
+            temp = temp.replace(")", "")
+            parse_name = "QOJ$" + class_info['user_id'] + "$" + temp
+            if parse_name in testdb_table_list:
+                temp_keyword = keyword.replace(temp, parse_name)
+            admin_result_query.append(temp_keyword)
+    else:
+        return "Do not execute"
+    admin_result_query = ' '.join(admin_result_query)
+    admin_result_query = admin_result_query + ';'
     
     #사용자 쿼리 테스트 디비에 실행!
     try:
-        user_result = QOJ__testDB(testDB_db).execute_query_user(user_query)
+        user_result = QOJ__testDB(testDB_db).execute_query_user(user_result_query)
     except Exception as e:
         user_result = str(e)
-        user_result = result.replace("qoj_test.", "")
-        user_result = result.replace("qoj.", "")
-        user_result = result.replace(header, "")
-        user_result = result.replace(header.lower(), "")
+        user_result = user_result.replace("qoj_test.", "")
+        user_result = user_result.replace("qoj.", "")
+        user_result = user_result.replace("QOJ$" + class_info['user_id'] + "$", "")
         return user_result
 
-    if not result:
+    if not user_result:
         return "Empty set"
     
     #정답 쿼리 테스트 디비에 실행!
-    admin_result = QOJ__testDB(testDB_db).execute_query_user(query_answer)
+    admin_result = QOJ__testDB(testDB_db).execute_query_user(admin_result_query)
 
     user_result = json.dumps(user_result)
     admin_result = json.dumps(admin_result)
@@ -327,7 +377,6 @@ def SQL_list(file):
 			one = ''
 	return output
 
-
 #import sqlparse
 #result = sqlparse.parse(sql)
 #print([str(t) for t in result[0].tokens if t.ttype is None][0])
@@ -335,9 +384,23 @@ def SQL_list(file):
 #print([str(t) for t in result[0].tokens]) in ["select".... 이런식 ㄱ ㄱ]
 
 def parseSelectSql(sql=None):
-    parsedSelect = {}
+    parsedSelect = []
     sqlParse = sqlparse.parse(sql)
     for token in sqlParse[0].tokens:
         if token._get_repr_name() == 'Identifier':
-            parsedSelect ['tableName'] = token.value
-    return parsedSelect 
+            parsedSelect.append(token.value.upper())
+        
+    return list(set(parsedSelect))
+
+
+def parseTable(query):
+    output = []
+    query = query.split(" ")
+    for idx, token in enumerate(query):
+       if token.lower() == 'from' and idx+1 < len(query):
+          if not query[idx+1].startswith("("):
+             if query[idx+1][len(query[idx+1])-1] == ")":
+                output.append(query[idx+1][:-1])
+             else:
+                output.append(query[idx+1])
+    return output

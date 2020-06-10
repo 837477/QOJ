@@ -54,6 +54,7 @@ def user_update(db, ID, PW, CHECK_PW, EMAIL):
 
 def get_userinfo(db, JWT):
 	USER = QOJ__user(db).find__one(user_id = JWT)
+	
 	if not USER: abort(401)
 
 	return USER

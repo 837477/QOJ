@@ -347,7 +347,7 @@ class QOJ__join_query(object):
     #유저가 푼 특정 문제 반환.
     def find__problem(self, user_id, p_id):
         with self.db.cursor() as cursor:
-            query = "SELECT DISTINCT(p_id), p_title, p_content, up_state, up_query, pg_id FROM (SELECT A.up_id, A.up_query, A.up_state, A.up_date, A.user_id, B.* FROM (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS A LEFT JOIN (SELECT * FROM QOJ_problem) AS B ON A.p_id = B.p_id ) AS RESULT WHERE p_id=%s;"
+            query = "SELECT DISTINCT(p_id), p_title, p_content, up_state, up_query, pg_id FROM (SELECT A.up_id, A.up_query, A.up_state, A.up_date, A.user_id, B.* FROM (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS A RIGHT JOIN (SELECT * FROM QOJ_problem) AS B ON A.p_id = B.p_id ) AS RESULT WHERE p_id=%s;"
             cursor.execute(query, (user_id, p_id,))
             result = cursor.fetchone()
         self.db.commit()
@@ -361,6 +361,14 @@ class QOJ__join_query(object):
         self.db.commit()
         return result
 
+    def find__class__manage_testdb(self, class_id):
+        with self.db.cursor() as cursor:
+            query = "SELECT * FROM (SELECT C.*, QMT.mt_id, QMT.mt_table_name FROM QOJ_class AS C RIGHT JOIN (SELECT * FROM QOJ_manage_testDB) AS QMT ON C.class_id = QMT.class_id) AS RESULT WHERE class_id=%s;"
+            cursor.execute(query, (class_id,))
+            result = cursor.fetchall()
+        self.db.commit()
+        return result
+
 class QOJ__v_all_problem(object):
     def __init__(self, db):
         super(QOJ__v_all_problem, self).__init__()
@@ -368,7 +376,7 @@ class QOJ__v_all_problem(object):
 
     def find__problem_analysis(self, class_id, pg_id):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM v_all_problem WHERE class_id=%s AND pg_id=%s ORDER BY p_id ASC, user_id ASC;"
+            query = "SELECT * FROM v_all_problem WHERE class_id=%s AND pg_id=%s AND uc_type != 1 ORDER BY p_id ASC, user_id ASC;"
             cursor.execute(query, (class_id, pg_id,))
             result = cursor.fetchall()
         self.db.commit()

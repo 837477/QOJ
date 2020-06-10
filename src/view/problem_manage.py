@@ -14,7 +14,7 @@ BP = Blueprint('problem_manage', __name__)
 #problem_group + class
 @BP.route('/API/V1/problem_manage/get_problem_group1', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_problem_group1():
+def API_V1_problem_manage__get_problem_group1():
     process_time = time.time()
     class_id = request.get_json()['class_id']
     if check_user(g.db, get_jwt_identity()):
@@ -36,7 +36,7 @@ def API_V1_auth__get_problem_group1():
 #problem_group + class
 @BP.route('/API/V1/problem_manage/get_problem_group2', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_problem_group2():
+def API_V1_problem_manage__get_problem_group2():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_user(g.db, get_jwt_identity()):
@@ -58,7 +58,7 @@ def API_V1_auth__get_problem_group2():
 #problem_list
 @BP.route('/API/V1/problem_manage/get_problem_list', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_problem_list():
+def API_V1_problem_manage__get_problem_list():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_user(g.db, get_jwt_identity()):
@@ -81,7 +81,7 @@ def API_V1_auth__get_problem_list():
 #특정 문제에 대한 반환
 @BP.route('/API/V1/problem_manage/get_problem', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_problem():
+def API_V1_problem_manage__get_problem():
     process_time = time.time()
     p_id = request.get_json()['p_id']
     if check_user(g.db, get_jwt_identity()):
@@ -103,7 +103,7 @@ def API_V1_auth__get_problem():
 #문제집 추가
 @BP.route('/API/V1/problem_manage/create_problem_group', methods = ['POST'])
 @jwt_required
-def API_V1_auth__create_problem_group():
+def API_V1_problem_manage__create_problem_group():
     process_time = time.time()
     class_id = request.get_json()['class_id']
     pg_title = request.get_json()['pg_title']
@@ -126,7 +126,7 @@ def API_V1_auth__create_problem_group():
 #문제집 수정
 @BP.route('/API/V1/problem_manage/update_problem_group', methods = ['POST'])
 @jwt_required
-def API_V1_auth__update_problem_group():
+def API_V1_problem_manage__update_problem_group():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     pg_title = request.get_json()['pg_title']
@@ -151,7 +151,7 @@ def API_V1_auth__update_problem_group():
 #문제집 삭제
 @BP.route('/API/V1/problem_manage/delete_problem_group', methods = ['POST'])
 @jwt_required
-def API_V1_auth__delete_problem_group():
+def API_V1_problem_manage__delete_problem_group():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_admin(g.db, get_jwt_identity()):
@@ -173,7 +173,7 @@ def API_V1_auth__delete_problem_group():
 #문제집 활성/비활성
 @BP.route('/API/V1/problem_manage/change_activate', methods = ['POST'])
 @jwt_required
-def API_V1_auth__change_activate():
+def API_V1_problem_manage__change_activate():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     pg_activate = request.get_json()['pg_activate']
@@ -196,7 +196,7 @@ def API_V1_auth__change_activate():
 #문제집 시험모드 수정
 @BP.route('/API/V1/problem_manage/change_exam', methods = ['POST'])
 @jwt_required
-def API_V1_auth__change_exam():
+def API_V1_problem_manage__change_exam():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     pg_exam = request.get_json()['pg_exam']
@@ -219,7 +219,7 @@ def API_V1_auth__change_exam():
 #문제집 시험모드 체크
 @BP.route('/API/V1/problem_manage/check_exam', methods = ['POST'])
 @jwt_required
-def API_V1_auth__check_exam():
+def API_V1_problem_manage__check_exam():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_admin(g.db, get_jwt_identity()):    
@@ -240,7 +240,7 @@ def API_V1_auth__check_exam():
 #특정 문제집의 모든 학생에 대한 점수 정보
 @BP.route('/API/V1/problem_manage/get_total_score', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_total_score():
+def API_V1_problem_manage__get_total_score():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     PG_ID = request.get_json()['pg_id']
@@ -266,7 +266,7 @@ def API_V1_auth__get_total_score():
 #problem 실행
 @BP.route('/API/V1/problem_manage/execute', methods = ['POST'])
 @jwt_required
-def API_V1_auth__execute():
+def API_V1_problem_manage__execute():
     process_time = time.time()
     QUERY = request.get_json()['query']
     CLASS_ID = request.get_json()['class_id']
@@ -289,12 +289,13 @@ def API_V1_auth__execute():
 #problem 제출
 @BP.route('/API/V1/problem_manage/submit', methods = ['POST'])
 @jwt_required
-def API_V1_auth__submit():
+def API_V1_problem_manage__submit():
     process_time = time.time()
     QUERY = request.get_json()['query']
     CLASS_ID = request.get_json()['class_id']
     P_ID = request.get_json()['p_id']
     if check_user(g.db, get_jwt_identity()):    
+        result = query_submit(g.db, g.testdb, get_jwt_identity(), QUERY, CLASS_ID, P_ID)
         try:
             result = query_submit(g.db, g.testdb, get_jwt_identity(), QUERY, CLASS_ID, P_ID)
             status = "success"
@@ -313,7 +314,7 @@ def API_V1_auth__submit():
 #최근에 제출 했던 쿼리 반환
 @BP.route('/API/V1/problem_manage/last_query', methods = ['POST'])
 @jwt_required
-def API_V1_auth__last_query():
+def API_V1_problem_manage__last_query():
     process_time = time.time()
     P_ID = request.get_json()['p_id']
     if check_user(g.db, get_jwt_identity()):
@@ -356,7 +357,7 @@ def API_V1_problem_manage__get_myproblem():
 #문제 생성
 @BP.route('/API/V1/problem_manage/create_problem', methods = ['POST'])
 @jwt_required
-def API_V1_auth__create_problem():
+def API_V1_problem_manage__create_problem():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     p_title = request.get_json()['p_title']
@@ -381,7 +382,7 @@ def API_V1_auth__create_problem():
 #문제 수정
 @BP.route('/API/V1/problem_manage/update_problem', methods = ['POST'])
 @jwt_required
-def API_V1_auth__update_problem():
+def API_V1_problem_manage__update_problem():
     process_time = time.time()
     p_id = request.get_json()['p_id']
     p_title = request.get_json()['p_title']
@@ -406,7 +407,7 @@ def API_V1_auth__update_problem():
 #문제 삭제
 @BP.route('/API/V1/problem_manage/delete_problem', methods = ['POST'])
 @jwt_required
-def API_V1_auth__delete_problem():
+def API_V1_problem_manage__delete_problem():
     process_time = time.time()
     p_id = request.get_json()['p_id']
     if check_admin(g.db, get_jwt_identity()):
@@ -428,7 +429,7 @@ def API_V1_auth__delete_problem():
 #관리자전용 문제 반환
 @BP.route('/API/V1/problem_manage/admin_problem', methods = ['POST'])
 @jwt_required
-def API_V1_auth__admin_problem():
+def API_V1_problem_manage__admin_problem():
     process_time = time.time()
     class_id = request.get_json()['class_id']
     p_id = request.get_json()['p_id']
@@ -476,7 +477,7 @@ def API_V1_problem_manage__get_up_id():
 #문제 테이블 삽입
 @BP.route('/API/V1/problem_manage/push_testdb', methods = ['POST'])
 @jwt_required
-def API_V1_auth__push_testdb():
+def API_V1_problem_manage__push_testdb():
     process_time = time.time()
     CLASS_ID = request.form['class_id']
     FILES = request.files.getlist('file')
@@ -506,7 +507,7 @@ def API_V1_auth__push_testdb():
 #문제 테이블 조회
 @BP.route('/API/V1/problem_manage/get_testdb', methods = ['POST'])
 @jwt_required
-def API_V1_auth__get_testdb():
+def API_V1_problem_manage__get_testdb():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
@@ -528,7 +529,7 @@ def API_V1_auth__get_testdb():
 #테이블 삭제
 @BP.route('/API/V1/problem_manage/delete_testdb', methods = ['POST'])
 @jwt_required
-def API_V1_auth__delete_testdb():
+def API_V1_problem_manage__delete_testdb():
     process_time = time.time()
     CLASS_ID = request.get_json()['class_id']
     MT_ID = request.get_json()['mt_id']

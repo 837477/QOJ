@@ -104,7 +104,7 @@ def init_data():
     if not result:
         with db.cursor() as cursor:
             query = "INSERT INTO QOJ_user(user_id, user_pw, user_name, user_email) VALUES(%s, %s, %s, %s);"
-            cursor.execute(query, ("QOJ_ADMIN", generate_password_hash("0000"), "QOJ_MASTER", "QOJ@QOJ.com",))
+            cursor.execute(query, ("QOJ_ADMIN", generate_password_hash("imlisgod"), "QOJ_MASTER", "QOJ@QOJ.com",))
         db.commit()
     ######################################################################
 

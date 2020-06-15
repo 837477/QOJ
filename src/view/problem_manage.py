@@ -497,7 +497,7 @@ def API_V1_problem_manage__push_testdb():
             if file_check:
                 FILE.save('./models/testdb_table/'+ file_check)
         try:
-            result = push_testDB(g.db, g.testdb, file_check, CLASS_ID, get_jwt_identity())
+            result = push_testDB(g.db, g.testdb, file_check, CLASS_ID)
             status = "success"
         except:
             result = status = "fail"

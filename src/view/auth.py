@@ -5,7 +5,7 @@ from flask_jwt_extended import *
 from flask_cors import CORS
 import time
 ###########################################
-from qoj_global import check_user, check_admin
+from qoj_global import check_user, check_admin, check_class_admin
 from auth_con import *
 
 BP = Blueprint('auth', __name__)
@@ -89,11 +89,12 @@ def API_V1_auth__get_userinfo():
     )
 
 #모든 회원 정보 반환
-@BP.route('/API/V1/auth/get_all_user')
+@BP.route('/API/V1/auth/get_all_user', methods=['POST'])
 @jwt_required
 def API_V1_auth__get_all_user():
     process_time = time.time()
-    if check_admin(g.db, get_jwt_identity()):
+    CLASS_ID = request.get_json()['class_id']
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()) or check_admin(g.db, get_jwt_identity()):
         try:
             result = get_all_user(g.db)
             status = "success"

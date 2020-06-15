@@ -5,6 +5,7 @@ from flask_jwt_extended import *
 import json
 import sqlparse
 import re
+import simplejson as json_2
 from datetime import datetime
 ###########################################
 from qoj_model import *
@@ -169,7 +170,7 @@ def query_execute(QOJ_db, testDB_db, query, class_id):
     query_split = query.split()
 
     #허용안하는 키워드 분별
-    if 'DROP' in query_split or 'DELETE' in query_split or 'UPDATE' in query_split or 'USE' in query_split or 'GRANT' in query_split or 'SET' in query_split or 'CREATE' in query_split:
+    if 'DROP' in query_split or 'DELETE' in query_split or 'UPDATE' in query_split or 'USE' in query_split or 'GRANT' in query_split or 'SET' in query_split or 'CREATE' in query_split or 'SHOW' in query_split:
         return "Do not execute"
 
     #해당 분반의 테이블 이름
@@ -185,7 +186,7 @@ def query_execute(QOJ_db, testDB_db, query, class_id):
             temp_keyword = keyword
             temp = keyword.replace("(", "")
             temp = temp.replace(")", "")
-            parse_name = "QOJ$" + class_info['user_id'] + "$" + temp
+            parse_name = "QOJ$" + class_info['user_id'].upper() + "$" + temp
             if parse_name in testdb_table_list:
                 temp_keyword = keyword.replace(temp, parse_name)
             result_query.append(temp_keyword)
@@ -201,7 +202,7 @@ def query_execute(QOJ_db, testDB_db, query, class_id):
         result = str(e)
         result = result.replace("qoj_test.", "")
         result = result.replace("qoj.", "")
-        result = result.replace("QOJ$" + class_info['user_id'] + "$", "")
+        result = result.replace("QOJ$" + class_info['user_id'].upper() + "$", "")
 
     if not result:
         result = "Empty set"
@@ -227,7 +228,7 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
     query_answer = query_answer.split()
 
     #허용안하는 키워드 분별
-    if 'DROP' in query_split or 'DELETE' in query_split or 'UPDATE' in query_split or 'USE' in query_split or 'GRANT' in query_split or 'SET' in query_split or 'CREATE' in query_split or 'INSERT' in query_split:
+    if 'DROP' in query_split or 'DELETE' in query_split or 'UPDATE' in query_split or 'USE' in query_split or 'GRANT' in query_split or 'SET' in query_split or 'CREATE' in query_split or 'INSERT' in query_split or 'SHOW' in query_split:
         return "Do not execute"
     
     #해당 분반의 테이블 이름
@@ -244,7 +245,7 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
             temp_keyword = keyword
             temp = keyword.replace("(", "")
             temp = temp.replace(")", "")
-            parse_name = "QOJ$" + class_info['user_id'] + "$" + temp
+            parse_name = "QOJ$" + class_info['user_id'].upper() + "$" + temp
             if parse_name in testdb_table_list:
                 temp_keyword = keyword.replace(temp, parse_name)
             user_result_query.append(temp_keyword)
@@ -260,7 +261,7 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
             temp_keyword = keyword
             temp = keyword.replace("(", "")
             temp = temp.replace(")", "")
-            parse_name = "QOJ$" + class_info['user_id'] + "$" + temp
+            parse_name = "QOJ$" + class_info['user_id'].upper() + "$" + temp
             if parse_name in testdb_table_list:
                 temp_keyword = keyword.replace(temp, parse_name)
             admin_result_query.append(temp_keyword)
@@ -276,7 +277,7 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
         user_result = str(e)
         user_result = user_result.replace("qoj_test.", "")
         user_result = user_result.replace("qoj.", "")
-        user_result = user_result.replace("QOJ$" + class_info['user_id'] + "$", "")
+        user_result = user_result.replace("QOJ$" + class_info['user_id'].upper() + "$", "")
         return user_result
 
     if not user_result:
@@ -285,8 +286,21 @@ def query_submit(QOJ_db, testDB_db, JWT, query, class_id, p_id):
     #정답 쿼리 테스트 디비에 실행!
     admin_result = QOJ__testDB(testDB_db).execute_query_user(admin_result_query)
 
-    user_result = json.dumps(user_result)
-    admin_result = json.dumps(admin_result)
+    # user_keys = [str(key) for key in user_result]
+    # admin_keys = [str(key) for key in admin_result]
+    # RESULT = False
+    # #1차 검증
+    # if len(user_keys) == len(admin_keys):
+    #     RESULT = True
+    # #2차 검증
+    # if not RESULT:
+    #     for i in reange(len(user_keys)):
+    #         if user_keys[i] != admin_keys[i]:
+    #             RESULT = False
+
+
+    user_result = json_2.dumps(user_result, use_decimal=True)
+    admin_result = json_2.dumps(admin_result, use_decimal=True)
 
     if user_result == admin_result:
         QOJ__user_problem(QOJ_db).insert__one(JWT, p_id, 1, query)
@@ -330,19 +344,23 @@ def push_testDB(QOJ_db, testDB_db, file_name, class_id):
     FILE = open("models/testdb_table/" + file_name, 'r', encoding='UTF8')
 
     FILE_result = SQL_list(FILE)
-
+    
+    FLAG_LIST = []
+    TABLE_NAME_FLAG = "🏠🏠🏠🏠"
+    PARSE_TABLE_NAME_FLAG = "🏠🏠🏠🏠"
     for query in FILE_result:
         result = sqlparse.parse(query)
         
         #허용안하는 키워드 분별
         keyword_checking = [str(t).upper() for t in result[0].tokens]
-        if 'DROP' in keyword_checking or 'DELETE' in keyword_checking or 'UPDATE' in keyword_checking or 'USE' in keyword_checking or 'GRANT' in keyword_checking or 'SET' in keyword_checking:
+        if 'DROP' in keyword_checking or 'DELETE' in keyword_checking or 'UPDATE' in keyword_checking or 'USE' in keyword_checking or 'GRANT' in keyword_checking or 'SET' in keyword_checking or 'SHOW' in keyword_checking:
             continue
         
         #테이블 생성이면?
         if (query.upper()).startswith('CREATE'):
             #테이블 이름 빼오기
             table_name = [str(t) for t in result[0].tokens if t.ttype is None][0]
+            TABLE_NAME_FLAG = table_name
 
             #테이블 이름 속에 '$' 체크
             if '$' in table_name:
@@ -350,11 +368,21 @@ def push_testDB(QOJ_db, testDB_db, file_name, class_id):
             
             #최종 테이블 이름 파싱
             parse_table_name = 'QOJ$' + class_info['user_id'] + '$' + table_name
+            PARSE_TABLE_NAME_FLAG = parse_table_name
 
-            query = query.replace(table_name, parse_table_name)
+            #query = query.replace(table_name, parse_table_name)
 
+            temp = {}
+            temp[TABLE_NAME_FLAG] = PARSE_TABLE_NAME_FLAG
+            FLAG_LIST.append(temp)
+            
             #테스트디비 관리 테이블에 추가!
             QOJ__manage_testDB(QOJ_db).insert__one(class_id, parse_table_name)
+        
+        for FLAG in FLAG_LIST:
+            key = list(FLAG.keys())[0]
+            if key in query:
+                query = query.replace(key, FLAG[key])
 
         #테스트 디비에 실행!
         QOJ__testDB(testDB_db).execute_query_admin(query)

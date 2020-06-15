@@ -11,5 +11,9 @@ BP = Blueprint('page', __name__)
 @BP.route('/')
 @BP.route('/board')
 @BP.route('/lecture')
+@BP.route('/user')
+@BP.route('/manager')
+@BP.route('/creation')
 def main():
 	return render_template('index.html')
+

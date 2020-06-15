@@ -127,11 +127,12 @@ def API_V1_problem_manage__create_problem_group():
 @jwt_required
 def API_V1_problem_manage__update_problem_group():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     pg_id = request.get_json()['pg_id']
     pg_title = request.get_json()['pg_title']
     pg_exam_start = request.get_json()['pg_exam_start']
     pg_exam_end = request.get_json()['pg_exam_end']
-    if check_admin(g.db, get_jwt_identity()):    
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = update_problem_group(g.db, pg_id, pg_title, pg_exam_start, pg_exam_end)
             status = "success"
@@ -152,8 +153,9 @@ def API_V1_problem_manage__update_problem_group():
 @jwt_required
 def API_V1_problem_manage__delete_problem_group():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     pg_id = request.get_json()['pg_id']
-    if check_admin(g.db, get_jwt_identity()):
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = delete_problem_group(g.db, pg_id)
             status = "success"
@@ -174,9 +176,10 @@ def API_V1_problem_manage__delete_problem_group():
 @jwt_required
 def API_V1_problem_manage__change_activate():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     pg_id = request.get_json()['pg_id']
     pg_activate = request.get_json()['pg_activate']
-    if check_admin(g.db, get_jwt_identity()):    
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = change_activate(g.db, pg_id, pg_activate)
             status = "success"
@@ -197,9 +200,10 @@ def API_V1_problem_manage__change_activate():
 @jwt_required
 def API_V1_problem_manage__change_exam():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     pg_id = request.get_json()['pg_id']
     pg_exam = request.get_json()['pg_exam']
-    if check_admin(g.db, get_jwt_identity()):    
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = change_exam(g.db, pg_id, pg_exam)
             status = "success"
@@ -215,7 +219,7 @@ def API_V1_problem_manage__change_exam():
         PROCESS_TIME = process_time
     )
 
-#문제집 시험모드 체크 $$$$$$$$$$$$$$$$
+#문제집 시험모드 체크
 @BP.route('/API/V1/problem_manage/check_exam', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__check_exam():
@@ -359,11 +363,12 @@ def API_V1_problem_manage__get_myproblem():
 @jwt_required
 def API_V1_problem_manage__create_problem():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     pg_id = request.get_json()['pg_id']
     p_title = request.get_json()['p_title']
     p_content = request.get_json()['p_content']
     p_answer = request.get_json()['p_answer']
-    if check_admin(g.db, get_jwt_identity()):    
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = create_problem(g.db, pg_id, p_title, p_content, p_answer)
             status = "success"
@@ -384,11 +389,12 @@ def API_V1_problem_manage__create_problem():
 @jwt_required
 def API_V1_problem_manage__update_problem():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     p_id = request.get_json()['p_id']
     p_title = request.get_json()['p_title']
     p_content = request.get_json()['p_content']
     p_answer = request.get_json()['p_answer']
-    if check_admin(g.db, get_jwt_identity()):    
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = update_problem(g.db, p_id, p_title, p_content, p_answer)
             status = "success"
@@ -409,8 +415,9 @@ def API_V1_problem_manage__update_problem():
 @jwt_required
 def API_V1_problem_manage__delete_problem():
     process_time = time.time()
+    CLASS_ID = request.get_json()['class_id']
     p_id = request.get_json()['p_id']
-    if check_admin(g.db, get_jwt_identity()):
+    if check_class_admin(g.db, CLASS_ID, get_jwt_identity()):
         try:
             result = delete_problem(g.db, p_id)
             status = "success"
@@ -449,7 +456,7 @@ def API_V1_problem_manage__admin_problem():
         PROCESS_TIME = process_time
     )
 
-#사용자가 시도한 문제 반환 $$$$$$$$$
+#사용자가 시도한 문제 반환
 @BP.route('/API/V1/problem_manage/get_up_id', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__get_up_id():

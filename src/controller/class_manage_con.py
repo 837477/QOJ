@@ -6,6 +6,12 @@ import json
 ###########################################
 from qoj_model import *
 
+#분반 정보 반환
+def get_classinfo(db, class_id):
+	result = QOJ__class(db).find__one_id(class_id)
+	
+	return result
+
 #본인 분반 반환
 def get_class(db, ID):
 	result = QOJ__join_query(db).get__QOJ_user_class__class(ID, 0)
@@ -16,12 +22,6 @@ def get_class(db, ID):
 def get_admin_class(db, ID):
 	result = QOJ__join_query(db).get__QOJ_user_class__class(ID, 1)
 
-	return result
-
-#분반 정보 반환
-def get_classinfo(db, class_id):
-	result = QOJ__class(db).find__one_id(class_id)
-	
 	return result
 
 #분반 소속 회원 반환
@@ -64,6 +64,7 @@ def create_class(db, class_name, class_admin, class_sub_admin):
 
 	return "success"
 
+#분반 수정
 def update_class(db, class_id, class_name, class_admin, class_sub_admin):
 	USER = QOJ__user(db).find__one(user_id = class_admin)
 	if not USER:

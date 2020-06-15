@@ -62,7 +62,6 @@ def API_V1_problem_manage__get_problem_list():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_user(g.db, get_jwt_identity()):
-        result = get_problem_list(g.db, get_jwt_identity(), pg_id)
         try:
             result = get_problem_list(g.db, get_jwt_identity(), pg_id)
             status = "success"
@@ -107,7 +106,7 @@ def API_V1_problem_manage__create_problem_group():
     process_time = time.time()
     class_id = request.get_json()['class_id']
     pg_title = request.get_json()['pg_title']
-    if check_admin(g.db, get_jwt_identity()):
+    if check_class_admin(g.db, class_id, get_jwt_identity()):
         try:
             result = create_problem_group(g.db, class_id, pg_title)
             status = "success"
@@ -123,7 +122,7 @@ def API_V1_problem_manage__create_problem_group():
         PROCESS_TIME = process_time
     )
 
-#문제집 수정
+#문제집 수정 $$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/update_problem_group', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__update_problem_group():
@@ -148,7 +147,7 @@ def API_V1_problem_manage__update_problem_group():
         PROCESS_TIME = process_time
     )
 
-#문제집 삭제
+#문제집 삭제 $$$$$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/delete_problem_group', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__delete_problem_group():
@@ -170,7 +169,7 @@ def API_V1_problem_manage__delete_problem_group():
         PROCESS_TIME = process_time
     )
 
-#문제집 활성/비활성
+#문제집 활성/비활성 $$$$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/change_activate', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__change_activate():
@@ -193,7 +192,7 @@ def API_V1_problem_manage__change_activate():
         PROCESS_TIME = process_time
     )
 
-#문제집 시험모드 수정
+#문제집 시험모드 수정 $$$$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/change_exam', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__change_exam():
@@ -216,13 +215,13 @@ def API_V1_problem_manage__change_exam():
         PROCESS_TIME = process_time
     )
 
-#문제집 시험모드 체크
+#문제집 시험모드 체크 $$$$$$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/check_exam', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__check_exam():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
-    if check_admin(g.db, get_jwt_identity()):    
+    if check_user(g.db, get_jwt_identity()):    
         try:
             result = check_exam(g.db, pg_id)
             status = "success"
@@ -237,6 +236,7 @@ def API_V1_problem_manage__check_exam():
         RESULT = result,
         PROCESS_TIME = process_time
     )
+
 #특정 문제집의 모든 학생에 대한 점수 정보
 @BP.route('/API/V1/problem_manage/get_total_score', methods = ['POST'])
 @jwt_required
@@ -354,7 +354,7 @@ def API_V1_problem_manage__get_myproblem():
         PROCESS_TIME = process_time
     )
 
-#문제 생성
+#문제 생성 $$$$$$$$$$$$$$$$$4
 @BP.route('/API/V1/problem_manage/create_problem', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__create_problem():
@@ -379,7 +379,7 @@ def API_V1_problem_manage__create_problem():
         PROCESS_TIME = process_time
     )
 
-#문제 수정
+#문제 수정 $$$$$$$$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/update_problem', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__update_problem():
@@ -404,7 +404,7 @@ def API_V1_problem_manage__update_problem():
         PROCESS_TIME = process_time
     )
 
-#문제 삭제
+#문제 삭제 $$$$$$$$$$$$$$$$$$$
 @BP.route('/API/V1/problem_manage/delete_problem', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__delete_problem():
@@ -449,7 +449,7 @@ def API_V1_problem_manage__admin_problem():
         PROCESS_TIME = process_time
     )
 
-#사용자가 시도한 문제 반환
+#사용자가 시도한 문제 반환 $$$$$$$$$
 @BP.route('/API/V1/problem_manage/get_up_id', methods = ['POST'])
 @jwt_required
 def API_V1_problem_manage__get_up_id():

@@ -399,7 +399,7 @@ class QOJ__testDB(object):
         self.db = db
 
     #관리자는 문제를 생성해야하기 때문에,
-    #실제 DB에 커밋을 시켜준다.
+    #실제 DB에 commit을 시켜준다.
     def execute_query_admin(self, query):
         with self.db.cursor() as cursor:
             cursor.execute(query)
@@ -407,8 +407,8 @@ class QOJ__testDB(object):
             self.db.commit()
         return result
     
-    #유저가 작성한 쿼리는 무조건 트랜젝션으로 실제 디비에 commit하지 않음.
-    #어차피 사용자는 SELECT만 치기 때문에 보안적 측면을 위해서!
+    #유저(학생)가 작성하여 실행한 해당 트랜젝션은 실제 절대 디비에 commit하지 않음.
+    #사용자는 문제를 풀 때에 SELECT만 사용하기 때문에 보안적 측면을 위함임.
     def execute_query_user(self, query):
         with self.db.cursor() as cursor:
             cursor.execute(query)

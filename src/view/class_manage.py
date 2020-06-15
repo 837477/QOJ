@@ -33,6 +33,7 @@ def API_V1_class_manage__get_classinfo():
         PROCESS_TIME = process_time
     )
 
+#본인 분반 반환
 @BP.route('/API/V1/class_manage/get_class')
 @jwt_required
 def API_V1_class_manage__get_class():

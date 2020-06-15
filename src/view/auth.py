@@ -88,7 +88,7 @@ def API_V1_auth__get_userinfo():
         PROCESS_TIME = process_time
     )
 
-#회원 정보 반환
+#모든 회원 정보 반환
 @BP.route('/API/V1/auth/get_all_user')
 @jwt_required
 def API_V1_auth__get_all_user():
@@ -96,29 +96,6 @@ def API_V1_auth__get_all_user():
     if check_admin(g.db, get_jwt_identity()):
         try:
             result = get_all_user(g.db)
-            status = "success"
-        except:
-            result = status = "fail"
-    else:
-        status = "success"
-        result = "Access denied"
-    process_time = time.time() - process_time
-    return jsonify(
-        API_STATUS = status,
-        RESULT = result,
-        PROCESS_TIME = process_time
-    )
-
-#등업
-@BP.route('/API/V1/auth/level_up', methods = ['POST'])
-@jwt_required
-def API_V1_auth__level_up_admin():
-    process_time = time.time()
-    TARGET_ID = request.get_json()['target_id']
-    TARGET_LEVEL = request.get_json()['target_level']
-    if check_admin(g.db, get_jwt_identity()):
-        try:
-            result = get_law_1(g.db, law_name)
             status = "success"
         except:
             result = status = "fail"

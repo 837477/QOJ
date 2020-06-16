@@ -696,6 +696,7 @@ a, div {
 	position: relative;
 	margin: 20px 0;
 	color: rgba(255,255,255,.7);
+	white-space: pre-wrap;
 }
 .shell_box {
 	position: relative;

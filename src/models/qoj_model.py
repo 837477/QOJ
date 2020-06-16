@@ -57,7 +57,7 @@ class QOJ__user(object):
     #사용자 찾기 (정보 반환용)
     def find__one(self, user_id):
         with self.db.cursor() as cursor:
-            query = "SELECT user_id, user_name, user_email FROM QOJ_user WHERE user_id = %s;"
+            query = "SELECT * FROM QOJ_user WHERE user_id = %s;"
             cursor.execute(query, (user_id,))
             result = cursor.fetchone()
         self.db.commit()
@@ -87,7 +87,7 @@ class QOJ__class(object):
     #분반 삭제
     def delete__one(self, class_id):
         with self.db.cursor() as cursor:
-            query = "DELETE FROM QOJ_class WHERE class_id=%s"
+            query = "DELETE FROM QOJ_class WHERE class_id=%s;"
             cursor.execute(query, (class_id,))
         self.db.commit()
         return "success"
@@ -101,7 +101,7 @@ class QOJ__class(object):
         self.db.commit()
         return result
 
-    #분반 아이디로 찾기
+    #특정 분반 반환 (분반 식별 값 이용)
     def find__one_id(self, class_id):
         with self.db.cursor() as cursor:
             query = "SELECT * FROM QOJ_class WHERE class_id=%s;"
@@ -110,7 +110,7 @@ class QOJ__class(object):
         self.db.commit()
         return result
 
-    #분반 이름과 담당 교수로 찾기
+    #특정 분반 반환 (분반명 + 분반 관리자 값 이용)
     def find__one_name_admin(self, class_name, class_admin):
         with self.db.cursor() as cursor:
             query = "SELECT * FROM QOJ_class WHERE class_name=%s and user_id=%s;"
@@ -124,7 +124,7 @@ class QOJ__user_class(object):
         super(QOJ__user_class, self).__init__()
         self.db = db
 
-    #분반 사용자 연결 추가
+    #분반 - 사용자 연결 정보 추가
     def insert__one(self, user_id, class_id, uc_type):
         with self.db.cursor() as cursor:
             query = "INSERT INTO QOJ_user_class(user_id, class_id, uc_type) VALUES(%s, %s, %s);"
@@ -132,6 +132,14 @@ class QOJ__user_class(object):
         self.db.commit()
         return "success"
     
+    #특정 분반이ㅡ 분반 - 사용자 연결 정보 전체 삭제 (관리자 제외)
+    def delete__all_student_in_class(self, uc_id):
+        with self.db.cursor() as cursor:
+            query = "DELETE FROM QOJ_user_class WHERE class_id=%s AND uc_type=0;"
+            cursor.execute(query, (uc_id,))
+        self.db.commit()
+        return "success"
+
     #해당 분반의 관리자들 삭제
     def delete__admin_in_class(self, class_id):
         with self.db.cursor() as cursor:

@@ -99,6 +99,8 @@ def delete_class(db, class_id):
 
 #분반에 회원 넣기
 def push_user(db, class_id, user_list):
+	QOJ__user_class(db).delete__all_student_in_class(class_id)
+
 	for user in user_list:
 		USER = QOJ__user(db).find__one(user_id = user)
 

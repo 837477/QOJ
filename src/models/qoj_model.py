@@ -132,7 +132,7 @@ class QOJ__user_class(object):
         self.db.commit()
         return "success"
     
-    #특정 분반이ㅡ 분반 - 사용자 연결 정보 전체 삭제 (관리자 제외)
+    #특정 분반의 분반 - 사용자 연결 정보 전체 삭제 (관리자 제외)
     def delete__all_student_in_class(self, uc_id):
         with self.db.cursor() as cursor:
             query = "DELETE FROM QOJ_user_class WHERE class_id=%s AND uc_type=0;"
@@ -140,7 +140,7 @@ class QOJ__user_class(object):
         self.db.commit()
         return "success"
 
-    #해당 분반의 관리자들 삭제
+    #특정 분반의 분반 - 사용자 연결 정보 전체 삭제 (관리자만)
     def delete__admin_in_class(self, class_id):
         with self.db.cursor() as cursor:
             query = "DELETE FROM QOJ_user_class WHERE class_id=%s AND uc_type=1"
@@ -194,66 +194,12 @@ class QOJ__user_problem(object):
     
     def find__up_id(self, up_id):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM QOJ_user_problem WHERE up_id=%s";
+            query = "SELECT * FROM QOJ_user_problem WHERE up_id=%s;"
             cursor.execute(query, (up_id,))
             result = cursor.fetchone()
         self.db.commit()
         return result
-    
-class QOJ__problem_group(object):
-    def __init__(self, db):
-        super(QOJ__problem_group, self).__init__()
-        self.db = db
 
-    #문제집 생성
-    def insert__one(self, class_id, pg_title):
-        with self.db.cursor() as cursor:
-            query = "INSERT INTO QOJ_problem_group(class_id, pg_title) VALUES(%s, %s);"
-            cursor.execute(query, (class_id, pg_title,))
-        self.db.commit()
-        return "success"
-
-    #문제집 수정
-    def update__one(self, pg_id, pg_title, pg_exam_start, pg_exam_end):
-        with self.db.cursor() as cursor:
-            query = "UPDATE QOJ_problem_group SET pg_title=%s, pg_exam_start=%s, pg_exam_end=%s WHERE pg_id = %s;"
-            cursor.execute(query, (pg_title, pg_exam_start, pg_exam_end, pg_id,))
-        self.db.commit()
-        return "success"
-
-    #문제집 활성화 수정 (활성/비활성)
-    def update__activate(self, pg_id, pg_activate):
-        with self.db.cursor() as cursor:
-            query = "UPDATE QOJ_problem_group SET pg_activate=%s WHERE pg_id = %s;"
-            cursor.execute(query, (pg_activate, pg_id,))
-        self.db.commit()
-        return "success"
-
-    #문제집 시험모드 수정
-    def update__exam(self, pg_id, pg_exam):
-        with self.db.cursor() as cursor:
-            query = "UPDATE QOJ_problem_group SET pg_exam=%s WHERE pg_id = %s;"
-            cursor.execute(query, (pg_exam, pg_id,))
-        self.db.commit()
-        return "success"
-
-    #문제집 삭제
-    def delete__one(self, pg_id):
-        with self.db.cursor() as cursor:
-            query = "DELETE FROM QOJ_problem_group WHERE pg_id=%s"
-            cursor.execute(query, (pg_id,))
-        self.db.commit()
-        return "success"
-
-    #특정 문제집 반환
-    def find__problem_group(self, pg_id):
-        with self.db.cursor() as cursor:
-            query = "SELECT * FROM QOJ_problem_group WHERE pg_id = %s;"
-            cursor.execute(query, (pg_id,))
-            result = cursor.fetchone()
-        self.db.commit()
-        return result
-    
 class QOJ__problem(object):
     def __init__(self, db):
         super(QOJ__problem, self).__init__()
@@ -275,6 +221,14 @@ class QOJ__problem(object):
         self.db.commit()
         return "success"
 
+    #문제 삭제
+    def delete__one(self, p_id):
+        with self.db.cursor() as cursor:
+            query = "DELETE FROM QOJ_problem WHERE p_id=%s"
+            cursor.execute(query, (p_id,))
+        self.db.commit()
+        return "success" 
+
     #문제 정보 반환 (정답 쿼리까지)
     def find_one(self, p_id):
         with self.db.cursor() as cursor:
@@ -284,13 +238,61 @@ class QOJ__problem(object):
         self.db.commit()
         return result
 
-    #문제 삭제
-    def delete__one(self, p_id):
+class QOJ__problem_group(object):
+    def __init__(self, db):
+        super(QOJ__problem_group, self).__init__()
+        self.db = db
+
+    #문제집 생성
+    def insert__one(self, class_id, pg_title):
         with self.db.cursor() as cursor:
-            query = "DELETE FROM QOJ_problem WHERE p_id=%s"
-            cursor.execute(query, (p_id,))
+            query = "INSERT INTO QOJ_problem_group(class_id, pg_title) VALUES(%s, %s);"
+            cursor.execute(query, (class_id, pg_title,))
         self.db.commit()
-        return "success" 
+        return "success"
+
+    #문제집 수정
+    def update__one(self, pg_id, pg_title, pg_exam_start, pg_exam_end):
+        with self.db.cursor() as cursor:
+            query = "UPDATE QOJ_problem_group SET pg_title=%s, pg_exam_start=%s, pg_exam_end=%s WHERE pg_id = %s;"
+            cursor.execute(query, (pg_title, pg_exam_start, pg_exam_end, pg_id,))
+        self.db.commit()
+        return "success"
+
+    #문제집 삭제
+    def delete__one(self, pg_id):
+        with self.db.cursor() as cursor:
+            query = "DELETE FROM QOJ_problem_group WHERE pg_id=%s"
+            cursor.execute(query, (pg_id,))
+        self.db.commit()
+        return "success"
+
+
+    #문제집 활성화 수정 (활성/비활성)
+    def update__activate(self, pg_id, pg_activate):
+        with self.db.cursor() as cursor:
+            query = "UPDATE QOJ_problem_group SET pg_activate=%s WHERE pg_id = %s;"
+            cursor.execute(query, (pg_activate, pg_id,))
+        self.db.commit()
+        return "success"
+
+    #문제집 시험모드 수정
+    def update__exam(self, pg_id, pg_exam):
+        with self.db.cursor() as cursor:
+            query = "UPDATE QOJ_problem_group SET pg_exam=%s WHERE pg_id = %s;"
+            cursor.execute(query, (pg_exam, pg_id,))
+        self.db.commit()
+        return "success"
+
+    
+    #특정 문제집 반환
+    def find__problem_group(self, pg_id):
+        with self.db.cursor() as cursor:
+            query = "SELECT * FROM QOJ_problem_group WHERE pg_id = %s;"
+            cursor.execute(query, (pg_id,))
+            result = cursor.fetchone()
+        self.db.commit()
+        return result
 
 class QOJ__manage_testDB(object):
     def __init__(self, db):
@@ -336,14 +338,16 @@ class QOJ__join_query(object):
         super(QOJ__join_query, self).__init__()
         self.db = db
 
+    #분반 - (분반 - 사용자 매칭)의 정보 반환용
     def get__QOJ_user_class__class(self, user_id, uc_type):
         with self.db.cursor() as cursor:
-            query = "SELECT * FROM (SELECT A.uc_id, A.user_id, A.uc_type, A.class_id, B.class_name, B.class_date FROM QOJ_user_class AS A LEFT JOIN (SELECT * FROM QOJ_class) AS B ON A.class_id = B.class_id) AS RESULT_JOIN WHERE user_id = %s AND uc_type = %s"
+            query = "SELECT * FROM (SELECT A.uc_id, A.user_id, A.uc_type, A.class_id, B.class_name, B.class_date FROM QOJ_user_class AS A LEFT JOIN (SELECT * FROM QOJ_class) AS B ON A.class_id = B.class_id) AS RESULT_JOIN WHERE user_id = %s AND uc_type = %s;"
             cursor.execute(query, (user_id, uc_type))
             result = cursor.fetchall()
         self.db.commit()
         return result
 
+    #문제집 - 분반의 정보 반환용
     def find__problem_group__class(self, class_id):
         with self.db.cursor() as cursor:
             query = "SELECT * FROM (SELECT A.*, B.class_name FROM QOJ_problem_group AS A LEFT JOIN (SELECT * FROM QOJ_class) AS B ON A.class_id = B.class_id) AS RESULT_JOIN WHERE class_id = %s;"
@@ -352,7 +356,7 @@ class QOJ__join_query(object):
         self.db.commit()
         return result
 
-    #유저가 푼 특정 문제 반환.
+    # 문제 - (문제와 사용자 매칭)의 정보 반환용(사용자가 제출한 특정 문제 반환용) - 단일 반환
     def find__problem(self, user_id, p_id):
         with self.db.cursor() as cursor:
             query = "SELECT DISTINCT(p_id), p_title, p_content, up_state, up_query, pg_id FROM (SELECT A.up_id, A.up_query, A.up_state, A.up_date, A.user_id, B.* FROM (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS A RIGHT JOIN (SELECT * FROM QOJ_problem) AS B ON A.p_id = B.p_id ) AS RESULT WHERE p_id=%s;"
@@ -361,6 +365,7 @@ class QOJ__join_query(object):
         self.db.commit()
         return result
 
+    #문제 - (문제와 사용자 매칭)의 정보 반환용 (사용자가 제출한 문제들 반환용) - 리스트 반환
     def find__problem_list(self, user_id, pg_id):
         with self.db.cursor() as cursor:
             query = "SELECT * FROM (SELECT A.pg_id, A.p_id, A.p_title, B.up_id, B.up_state, B.user_id, B.up_query FROM QOJ_problem AS A LEFT JOIN (SELECT * FROM QOJ_user_problem WHERE user_id=%s) AS B ON A.p_id = B.p_id) AS RESULT_JOIN WHERE pg_id=%s;"
@@ -369,6 +374,7 @@ class QOJ__join_query(object):
         self.db.commit()
         return result
 
+    #분반 - (특정 분반이 관리하는 Judge 테이블 관리)의 정보 반환용
     def find__class__manage_testdb(self, class_id):
         with self.db.cursor() as cursor:
             query = "SELECT * FROM (SELECT C.*, QMT.mt_id, QMT.mt_table_name FROM QOJ_class AS C RIGHT JOIN (SELECT * FROM QOJ_manage_testDB) AS QMT ON C.class_id = QMT.class_id) AS RESULT WHERE class_id=%s;"

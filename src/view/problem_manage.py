@@ -226,6 +226,7 @@ def API_V1_problem_manage__check_exam():
     process_time = time.time()
     pg_id = request.get_json()['pg_id']
     if check_user(g.db, get_jwt_identity()):    
+        result = check_exam(g.db, pg_id)
         try:
             result = check_exam(g.db, pg_id)
             status = "success"

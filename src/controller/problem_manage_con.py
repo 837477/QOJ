@@ -101,8 +101,8 @@ def change_exam(db, pg_id, pg_exam):
 #문제집 시험모드 체크
 def check_exam(db, pg_id):
     result = QOJ__problem_group(db).find__problem_group(pg_id)
-
-    if (datetime.strptime(result['pg_exam_start'], '%Y-%m-%d %H:%M:%S') < datetime.now()) and (datetime.strptime(result['pg_exam_end'], '%Y-%m-%d %H:%M:%S') > datetime.datetime.now()):
+    
+    if (result['pg_exam_start'] < datetime.now()) and (result['pg_exam_end'] > datetime.now()):
         return True
     else:
         return False
